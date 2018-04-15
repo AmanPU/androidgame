@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "954532635742",
+    "firebase_url": "https://androidgame-802cb.firebaseio.com",
+    "project_id": "androidgame-802cb",
+    "storage_bucket": "androidgame-802cb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954532635742:android:51c71a59e16c5ef6",
+        "android_client_info": {
+          "package_name": "com.example.amanbhullar.androidproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "954532635742-tco7fub7hcd57t07jvlhdgjkueol2nsg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgmPCuRnbT80q3qmr0l6GjyOpxjj0PSkc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
