@@ -43,10 +43,6 @@ public class PlayersViewActivity extends AppCompatActivity implements LocationLi
 
 
 
-        Log.d("HERE", "1");
-
-        Log.d("HERE", "2");
-
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         if (ActivityCompat.shouldShowRequestPermissionRationale(PlayersViewActivity.this,
@@ -62,27 +58,6 @@ public class PlayersViewActivity extends AppCompatActivity implements LocationLi
 
         }
 
-//        CheckGpsStatus();
-
-//        GpsStatus = true;
-//        if(GpsStatus == true) {
-//
-//                if (ActivityCompat.checkSelfPermission(
-//                        MainActivity.this,
-//                        android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                        &&
-//                        ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-//                                != PackageManager.PERMISSION_GRANTED) {
-//                    return;
-//                }
-////                location = locationManager.getLastKnownLocation(Holder);
-////                locationManager.requestLocationUpdates(Holder, 12000, 7, MainActivity.this);
-//            } else {
-//
-//            Toast.makeText(MainActivity.this, "Please Enable GPS First", Toast.LENGTH_LONG).show();
-//
-//        }
-//    }
 
         subscribeToUpdates();
 
@@ -114,7 +89,6 @@ public class PlayersViewActivity extends AppCompatActivity implements LocationLi
 
             @Override
             public void onCancelled(DatabaseError error) {
-                Log.d("DB", "Failed to read value.", error.toException());
             }
         });
     }
@@ -141,12 +115,9 @@ public class PlayersViewActivity extends AppCompatActivity implements LocationLi
 
             case RequestPermissionCode:
 
-                Log.d("TAG", "LOCATION SERVICES");
 
                 Location lastLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
 
-                Log.d("LATITUDE", lastLocation.getLatitude()+"");
-                Log.d("LONGITUDE", lastLocation.getLongitude()+"");
 
                 FBData fbData = new FBData(lastLocation.getLatitude(), lastLocation.getLongitude());
 
@@ -160,7 +131,6 @@ public class PlayersViewActivity extends AppCompatActivity implements LocationLi
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d("LOCATION", "Location changed");
     }
 
     @Override

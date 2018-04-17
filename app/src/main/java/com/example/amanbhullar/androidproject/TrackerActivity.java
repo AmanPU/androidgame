@@ -2,9 +2,11 @@ package com.example.amanbhullar.androidproject;
 
 
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -12,6 +14,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,6 +32,8 @@ public class TrackerActivity extends FragmentActivity implements OnMapReadyCallb
 
     DatabaseReference root;
 
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,26 +46,41 @@ public class TrackerActivity extends FragmentActivity implements OnMapReadyCallb
         db = FirebaseDatabase.getInstance();
         root = db.getReference();
         root.keepSynced(true);
+        mAuth = FirebaseAuth.getInstance();
 
-        readData();
 
+        mAuth.signInAnonymously()
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d("TAG", "signInAnonymously:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            readDataFromServer();
+
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w("TAG", "signInAnonymously:failure", task.getException());
+                            Toast.makeText(TrackerActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+
+                        }
+
+                        // ...
+                    }
+                });
     }
 
-    private void readData() {
+    private void readDataFromServer() {
         root.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("DATA", dataSnapshot.toString());
-//                textView1.setText(dataSnapshot.toString());
-//                for (DataSnapshot child : dataSnapshot.getChildren()) {
-//
-//                }
+                Log.d("SERVER DATA", dataSnapshot.toString());
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
-//                textView1.setText(databaseError.toString());
 
             }
         });
@@ -76,8 +100,17 @@ public class TrackerActivity extends FragmentActivity implements OnMapReadyCallb
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        mMap = googleMap;
+
+        // Add a marker in Sydney and move the camera
+        LatLng lambton = new LatLng(43.774194, -79.335977);
+        mMap.addMarker(new MarkerOptions().position(lambton).title("position1"));
+
+        LatLng lambton1 = new LatLng(43.772788, -79.334756);
+        mMap.addMarker(new MarkerOptions().position(lambton1).title("position2"));
+        LatLng lambton3 = new LatLng(43.774089, -79.335743);
+        mMap.addMarker(new MarkerOptions().position(lambton3).title("position3"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lambton,15f));
+
     }
 }
