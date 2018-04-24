@@ -9,6 +9,7 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -38,7 +39,10 @@
         <activity
             android:name=".TrackerActivity"
             android:label="@string/title_activity_tracker" />
-        <activity android:name=".PlayersViewActivity"></activity>
+        <activity android:name=".PlayersViewActivity" />
+        <activity
+            android:name=".PlayerMapView"
+            android:label="@string/title_activity_player_map_view"></activity>
     </application>
 
 </manifest>

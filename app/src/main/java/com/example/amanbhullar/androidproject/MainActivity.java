@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onPlayerButtonClicked(View view){
-        Intent intent = new Intent(this, PlayersViewActivity.class);
+        Intent intent = new Intent(this, PlayerMapView.class);
 
         startActivity(intent);
     }

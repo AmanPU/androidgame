@@ -1,8 +1,5 @@
 package com.example.amanbhullar.androidproject;
 
-
-
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,11 +11,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,11 +21,10 @@ import com.google.firebase.database.ValueEventListener;
 public class TrackerActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+
     FirebaseDatabase db;
 
     DatabaseReference root;
-
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,46 +37,12 @@ public class TrackerActivity extends FragmentActivity implements OnMapReadyCallb
 
         db = FirebaseDatabase.getInstance();
         root = db.getReference();
-        root.keepSynced(true);
-        mAuth = FirebaseAuth.getInstance();
 
+//        readData();
+        subscribeToUpdates();
 
-        mAuth.signInAnonymously()
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d("TAG", "signInAnonymously:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            readDataFromServer();
-
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w("TAG", "signInAnonymously:failure", task.getException());
-                            Toast.makeText(TrackerActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-
-                        }
-
-                        // ...
-                    }
-                });
     }
 
-    private void readDataFromServer() {
-        root.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("SERVER DATA", dataSnapshot.toString());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
 
     /**
      * Manipulates the map once available.
@@ -100,17 +58,102 @@ public class TrackerActivity extends FragmentActivity implements OnMapReadyCallb
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        mMap = googleMap;
+//        43.760386, -79.237016
+//        LatLng swethaHome = new LatLng(43.760386, -79.237016);
+//        mMap.addMarker(new MarkerOptions().position(swethaHome).title("Swetha"));
+//
+//        //43.761098, -79.237789
+//        LatLng static1 = new LatLng(43.761098, -79.237789);
+//        mMap.addMarker(new MarkerOptions().position(static1).title("static1"));
+//
+//        //43.761292, -79.235852
+//        LatLng static2 = new LatLng(43.761292, -79.235852);
+//        mMap.addMarker(new MarkerOptions().position(static2).title("static2"));
+//
+//        ////43.762914, -79.236899
+//        LatLng static3 = new LatLng(43.762914, -79.236899);
+//        mMap.addMarker(new MarkerOptions().position(static3).title("static3"));
+//
+//        //43.760794, -79.234999
+//        LatLng static4 = new LatLng(43.760794, -79.234999);
+//        mMap.addMarker(new MarkerOptions().position(static4).title("static4"));
+//
+//        //43.759405, -79.236286
+//        LatLng static5 = new LatLng(43.759405, -79.236286);
+//        mMap.addMarker(new MarkerOptions().position(static5).title("static5"));
 
-        // Add a marker in Sydney and move the camera
-        LatLng lambton = new LatLng(43.774194, -79.335977);
-        mMap.addMarker(new MarkerOptions().position(lambton).title("position1"));
 
-        LatLng lambton1 = new LatLng(43.772788, -79.334756);
-        mMap.addMarker(new MarkerOptions().position(lambton1).title("position2"));
-        LatLng lambton3 = new LatLng(43.774089, -79.335743);
-        mMap.addMarker(new MarkerOptions().position(lambton3).title("position3"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lambton,15f));
 
+
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(swethaHome));
+
+
+
+//        mMap.setMinZoomPreference(14.0f);
+//        mMap.setMaxZoomPreference(40.0f);
+//        mMap.zoo
+    }
+
+
+    private void subscribeToUpdates() {
+
+
+
+        root.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+
+//                MapCoordinates mapCoordinates = dataSnapshot.getC(MapCoordinates.class);
+
+                for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
+                    FBData mapCoordinates = childSnapshot.getValue(FBData.class);
+                    LatLng static2 = new LatLng(mapCoordinates.latitude, mapCoordinates.longtitude);
+                    mMap.clear();
+                    mMap.addMarker(new MarkerOptions().position(static2).title("static2"));
+
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(static2));
+
+                    mMap.setMinZoomPreference(14.0f);
+                    mMap.setMaxZoomPreference(40.0f);
+
+                    Log.d ("DATA", mapCoordinates.toString());
+
+                }
+
+                Toast.makeText(getApplicationContext(), "Broadcasted message.",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.d("DB", "Failed to read value.", error.toException());
+            }
+        });
+    }
+
+    private void readData() {
+        root.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("DATA", dataSnapshot.toString());
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }
