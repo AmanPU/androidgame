@@ -2,6 +2,7 @@ package com.example.amanbhullar.androidproject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -11,12 +12,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,10 +31,21 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerMapView extends FragmentActivity implements OnMapReadyCallback {
 
+
+    ArrayList<LatLng> vertices;
     private GoogleMap mMap;
+    private GoogleApiClient googleApiClient;
+    private static final int LOCATION_REQUEST_CODE = 101;
+
+    Marker currentLocationMarker;
+    FusedLocationProviderClient locationProvider;
+    PolylineOptions options;
+
 
     FirebaseDatabase db;
 
@@ -63,9 +81,35 @@ public class PlayerMapView extends FragmentActivity implements OnMapReadyCallbac
         }
 
 
+//        setInitialLocation();
+
         subscribeToUpdates();
 
     }
+
+    private void setInitialLocation(){
+//        43.774069, -79.335642
+//
+            LatLng startingLocation = new LatLng(43.774069, -79.335642);
+
+                Log.d ("Location", startingLocation.latitude +" "+startingLocation.longitude);
+                MarkerOptions mp = new MarkerOptions();
+
+                mp.position(new LatLng(startingLocation.latitude, startingLocation.longitude));
+
+                mp.title("my position");
+
+                mMap.addMarker(mp);
+
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(startingLocation.latitude, startingLocation.longitude), 100));
+
+                FBData fbData = new FBData(startingLocation.latitude, startingLocation.longitude);
+
+                root.child("messages").child("Player").setValue(fbData);
+
+    }
+
 
     private void subscribeToUpdates() {
 
@@ -108,26 +152,7 @@ public class PlayerMapView extends FragmentActivity implements OnMapReadyCallbac
             case RequestPermissionCode:
 
                 Log.d ("HERE","HERE");
-
-//                locationManager.re
-
-//                Location startingLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-//
-//                Log.d ("Location", startingLocation.getLatitude() +" "+startingLocation.getLongitude());
-//                MarkerOptions mp = new MarkerOptions();
-//
-//                mp.position(new LatLng(startingLocation.getLatitude(), startingLocation.getLongitude()));
-//
-//                mp.title("my position");
-//
-//                mMap.addMarker(mp);
-//
-//                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-//                        new LatLng(startingLocation.getLatitude(), startingLocation.getLongitude()), 100));
-//
-//                FBData fbData = new FBData(startingLocation.getLatitude(), startingLocation.getLongitude());
-//
-//                root.child("messages").child("Player").setValue(fbData);
+                setInitialLocation();
 
 
                 locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 1000, 0, new LocationListener() {
@@ -197,7 +222,58 @@ public class PlayerMapView extends FragmentActivity implements OnMapReadyCallbac
     }
 
 
+    private void addMarkers(){
+        if(mMap != null){
 
+
+            LatLng east = new LatLng(43.772977,-79.336185);
+            LatLng west = new LatLng(43.774405, -79.337081);
+            LatLng north = new LatLng(43.774999,	-79.334034);
+            LatLng south = new LatLng(43.773726,-79.333356);
+            LatLng east1 = new LatLng(43.772977,-79.336185);
+
+            mMap.addMarker(new MarkerOptions().position(east)
+                    .title("x"));
+
+            mMap.addMarker(new MarkerOptions().position(west)
+                    .title("y"));
+
+            mMap.addMarker(new MarkerOptions().position(north)
+                    .title("z"));
+
+
+            mMap.addMarker(new MarkerOptions().position(south)
+                    .title("a"));
+
+            mMap.addMarker(new MarkerOptions().position(east1)
+                    .title("b"));
+
+            List<LatLng> list = new ArrayList<>();
+            list.add(east);
+            list.add(west);
+            list.add(north);
+            list.add(south);
+            list.add(east1);
+            list.add(east);
+            vertices = new ArrayList<>();
+            options = new PolylineOptions().width(2).color(Color.BLUE).geodesic(true);
+
+
+            PolygonOptions rectOptions = new PolygonOptions()
+                    .add(east,
+                            west,
+                            north,south,east1, east);
+            Polygon polygon = mMap.addPolygon(rectOptions);
+            polygon.setFillColor(Color.BLUE);
+            for (int z = 0; z < list.size(); z++) {
+                LatLng point = list.get(z);
+                vertices.add(point);
+                options.add(point);
+            }
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(east));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(west, 17.0f));//10
+        }
+    }
 
 
     public double getDist(double latitude, double longitude) {
@@ -240,7 +316,7 @@ public class PlayerMapView extends FragmentActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+        addMarkers();
         // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
